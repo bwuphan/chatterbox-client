@@ -84,12 +84,16 @@ form input[type=text] {
 }
 
 .friend {
-    color: #fff;
-    background-color: #0090da;
+    font-weight: bold;
 }
 
 .username {
     font-weight: bold;
+}
+
+.username:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .sendbutton {

@@ -7,7 +7,7 @@ function escapeHtml(str) {
 
 var app = {
   server: 'https://api.parse.com/1/classes/messages',
-  friends: [],
+  friends: {},
   rooms: {'All': 0},
   currentRoom: 'All',
   init: function(){
@@ -16,6 +16,7 @@ var app = {
     setInterval(function(){
       thisContext.fetch();
     }, 1000);
+    //Send button click handler
     $('.sendbutton').click(function() {
       if($('input.newroom').val()){
         thisContext.currentRoom = $('input.newroom').val();
@@ -28,9 +29,15 @@ var app = {
       //send to server and process response
       thisContext.send(message);
     });
+    //Chatroom change click handler
     $('.chatrooms').change(function(){
       thisContext.currentRoom = $('.chatrooms option:selected').val();
-    })
+    });
+    //Friend click handler
+    $(document).on('click', '.username', function(){
+      var username = $(this).text();
+      thisContext.friends[username] = username;
+    });
   },
   send: function(message){
     var thisContext = this;
@@ -56,6 +63,9 @@ var app = {
   },
   displayMessages: function(messages){
     var thisContext = this;
+    for(var key in thisContext.friends){
+      console.log(key);
+    }
     thisContext.clearMessages();
     for(var i = 0; i < messages.length; i++){
       var escapedUsername = escapeHtml(messages[i].username);
@@ -67,8 +77,12 @@ var app = {
       }
       //$('select').append($('<option>', {value:1, text:'One'}));
       if(messages[i].roomname === thisContext.currentRoom || thisContext.currentRoom === 'All'){
-        var oneMessage = '<span class="username">' + escapedUsername + ": " + escapedRoomname + '</span><div class="usertext">' + escapedMessage + '</div>';
-        // var oneMessage ='<div><span class="username">' + messages[i].username + "</span> : " + messages[i].text + '</div>';
+        if(messages[i].username in thisContext.friends){
+          var oneMessage = '<span class="username">' + escapedUsername + '</span><div class="usertext friend">' + escapedMessage + '</div>';
+        } else {
+          var oneMessage = '<span class="username">' + escapedUsername + '</span><div class="usertext">' + escapedMessage + '</div>';
+          // var oneMessage ='<div><span class="username">' + messages[i].username + "</span> : " + messages[i].text + '</div>';
+        }
         $('#chats').append(oneMessage);
       }
     }
