@@ -91,3 +91,7 @@ form input[type=text] {
 .username {
     font-weight: bold;
 }
+
+.sendbutton {
+    font-weight: bold;
+}
