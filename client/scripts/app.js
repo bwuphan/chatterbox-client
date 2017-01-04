@@ -10,6 +10,7 @@ var app = {
   friends: {},
   rooms: {'All': 0},
   currentRoom: 'All',
+  firstObject: null,
   init: function(){
     var thisContext = this;
     thisContext.fetch();
@@ -18,13 +19,14 @@ var app = {
     }, 1000);
     //Send button click handler
     $('.sendbutton').click(function() {
-      if($('input.newroom').val()){
-        thisContext.currentRoom = $('input.newroom').val();
+      var newRoom = 'lobby';
+      if($('input.newroom').val().length > 0){
+        var newRoom = $('input.newroom').val();
       }
       var message = {
         text: $('textarea.message').val(),
         username:window.location.search.slice(10),
-        roomname: thisContext.currentRoom
+        roomname: newRoom
       }
       //send to server and process response
       thisContext.send(message);
@@ -32,6 +34,9 @@ var app = {
     //Chatroom change click handler
     $('.chatrooms').change(function(){
       thisContext.currentRoom = $('.chatrooms option:selected').val();
+      // if($('input.newroom').val() !== thisContext.currentRoom){
+      //   thisContext.currentRoom = $('input.newroom').val();
+      // }
     });
     //Friend click handler
     $(document).on('click', '.username', function(){
@@ -54,7 +59,9 @@ var app = {
       type: 'GET',
       success: function(response) {
         var messages = response.results;
-        thisContext.displayMessages(messages);
+        if(!_.isEqual(thisContext.firstMessage, messages[0])){
+          thisContext.displayMessages(messages);
+        }
       },
       error: function(){
         console.log('error')
@@ -63,9 +70,7 @@ var app = {
   },
   displayMessages: function(messages){
     var thisContext = this;
-    for(var key in thisContext.friends){
-      console.log(key);
-    }
+    thisContext.firstObject = messages[0];
     thisContext.clearMessages();
     for(var i = 0; i < messages.length; i++){
       var escapedUsername = escapeHtml(messages[i].username);
@@ -87,8 +92,17 @@ var app = {
       }
     }
   },
+  getChatrooms: function(){
+    var $chatrooms = $('.chatrooms');
+
+  },
   clearMessages: function(){
     $('#chats').children().remove();
+  },
+  clearChatrooms: function(){
+    var thisContext = this;
+    $('.chatrooms').children().remove();
+    thisContext.rooms = {'All': 0}
   },
   renderMessage: function(message){
     $('#chats').append('<div>' + JSON.stringify(message) + '</div>');
